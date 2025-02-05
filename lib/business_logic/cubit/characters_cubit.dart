@@ -1,8 +1,23 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:rickandmorty_app/data/models/character.dart';
+import 'package:rickandmorty_app/data/repository/characters_repository.dart';
 
 part 'characters_state.dart';
 
 class CharactersCubit extends Cubit<CharactersState> {
-  CharactersCubit() : super(CharactersInitial());
+  final CharactersRepository charactersRepository;
+
+  late List<Character> characters;
+
+  CharactersCubit(this.charactersRepository) : super(CharactersInitial());
+
+  List<Character> getAllCharacters() {
+    charactersRepository.getAllCharacters().then((characters) {
+      emit(CharactersLoaded(characters));
+      this.characters = characters;
+    });
+
+    return characters;
+  }
 }
