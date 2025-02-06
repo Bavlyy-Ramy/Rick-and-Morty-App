@@ -18,7 +18,7 @@ class AppRouter {
   }
   Route? generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case CharactersScreen:
+      case charactersScreen:
         return MaterialPageRoute(
             builder: (_) => BlocProvider(
                   create: (context) => charactersCubit,
