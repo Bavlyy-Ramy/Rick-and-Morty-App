@@ -6,7 +6,7 @@ class Character {
   late String type;
   late String gender;
   late String image;
-  late List<String> episodesAppearedIn;
+  late List<dynamic> episodesAppearedIn;
 
   Character.fromJson(Map<String, dynamic> json) {
     charId = json['id'];

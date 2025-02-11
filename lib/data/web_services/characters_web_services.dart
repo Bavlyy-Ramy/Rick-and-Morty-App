@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:rickandmorty_app/constants/strings.dart';
-import 'package:rickandmorty_app/data/models/character.dart';
 
 class CharactersWebServices {
   late Dio dio;
@@ -19,7 +18,7 @@ class CharactersWebServices {
     try {
       Response response = await dio.get('character');
       print(response.data.toString());
-      return response.data;
+      return response.data['results'];
     } on Exception catch (e) {
       print(e.toString());
       return [];

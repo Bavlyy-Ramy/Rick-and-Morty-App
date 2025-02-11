@@ -14,12 +14,39 @@ class CharactersScreen extends StatefulWidget {
 
 class _CharactersScreenState extends State<CharactersScreen> {
   late List<Character> allCharacters;
+  late List<Character> searchedForCharacters;
+  bool _isSearching = false;
+  final _searchTextController = TextEditingController();
+
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchTextController,
+      cursorColor: MyColors.grey,
+      decoration: const InputDecoration(
+        hintText: 'Find a character',
+        border: InputBorder.none,
+        hintStyle: TextStyle(color: MyColors.grey, fontSize: 18),
+      ),
+      style: const TextStyle(color: MyColors.grey, fontSize: 18),
+      onChanged: (searchedCharacter) {
+        addSearchedForItemToSearchedList(searchedCharacter);
+      },
+    );
+  }
+
+  void addSearchedForItemToSearchedList(String searchedCharacter) {
+    searchedForCharacters = allCharacters
+        .where((character) =>
+            character.name.toLowerCase().startsWith(searchedCharacter))
+        .toList();
+    setState(() {});
+  }
+  
 
   @override
   void initState() {
     super.initState();
-    allCharacters =
-        BlocProvider.of<CharactersCubit>(context).getAllCharacters();
+    BlocProvider.of<CharactersCubit>(context).getAllCharacters();
   } // ui asks bloc for data   wakes it up bec it's lazy
 
   Widget buildBlocWidget() {
@@ -27,8 +54,10 @@ class _CharactersScreenState extends State<CharactersScreen> {
         builder: (context, state) {
       if (state is CharactersLoaded) {
         allCharacters = (state).characters;
+        print('idk leh');
         return buildLoadedListWidgets();
       } else {
+        print('laoding');
         return showLoadingIndicator();
       }
     });
@@ -64,11 +93,13 @@ class _CharactersScreenState extends State<CharactersScreen> {
           mainAxisSpacing: 1,
         ),
         shrinkWrap: true,
-        physics:  const ClampingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         padding: EdgeInsets.zero,
         itemCount: allCharacters.length,
         itemBuilder: (context, index) {
-          return const CharacterItem();
+          return CharacterItem(
+            character: allCharacters[index],
+          );
         });
   }
 
