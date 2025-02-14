@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:rickandmorty_app/business_logic/cubit/characters_cubit.dart';
 import 'package:rickandmorty_app/constants/my_colors.dart';
 import 'package:rickandmorty_app/data/models/character.dart';
@@ -36,11 +37,12 @@ class _CharactersScreenState extends State<CharactersScreen> {
 
   void addSearchedForItemToSearchedList(String searchedCharacter) {
     searchedForCharacters = allCharacters
-        .where((character) =>
+        .where((character) => 
             character.name.toLowerCase().startsWith(searchedCharacter))
         .toList();
     setState(() {});
   }
+
 
   List<Widget> _buildAppBarActions() {
     if (_isSearching) {
@@ -160,13 +162,34 @@ class _CharactersScreenState extends State<CharactersScreen> {
     );
   }
 
+  Widget buildNoInternetWidget() {
+    return Center(
+        child: Container(
+      color: MyColors.white,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20),
+          const Text(
+            '          Couldn\'t connect......\nCheck your network connection',
+            style: TextStyle(fontSize: 22, color: MyColors.grey),
+          ),
+          Image.asset('assets/images/no_connection.png'),
+          const SizedBox(
+            height: 200,
+          )
+        ],
+      ),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: MyColors.Yellow,
         leading: _isSearching
-            ? BackButton(
+            ? const BackButton(
                 color: MyColors.grey,
               )
             : Container(
@@ -175,7 +198,23 @@ class _CharactersScreenState extends State<CharactersScreen> {
         title: _isSearching ? _buildSearchField() : _buildAppBarTile(),
         actions: _buildAppBarActions(),
       ),
-      body: buildBlocWidget(),
+      body: OfflineBuilder(
+        connectivityBuilder: (
+          BuildContext context,
+          List<ConnectivityResult> connectivity,
+          Widget child,
+        ) {
+          final bool connected =
+              !connectivity.contains(ConnectivityResult.none);
+
+          if (connected) {
+            return buildBlocWidget();
+          } else {
+            return buildNoInternetWidget();
+          }
+        },
+        child: showLoadingIndicator(),
+      ),
     );
   }
 }
