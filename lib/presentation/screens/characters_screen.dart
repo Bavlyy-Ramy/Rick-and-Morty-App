@@ -41,7 +41,53 @@ class _CharactersScreenState extends State<CharactersScreen> {
         .toList();
     setState(() {});
   }
-  
+
+  List<Widget> _buildAppBarActions() {
+    if (_isSearching) {
+      return [
+        IconButton(
+          onPressed: () {
+            _clearSearch();
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.clear,
+            color: MyColors.grey,
+          ),
+        )
+      ];
+    } else {
+      return [
+        IconButton(
+            onPressed: _startSearch,
+            icon: const Icon(
+              Icons.search,
+              color: MyColors.grey,
+            ))
+      ];
+    }
+  }
+
+  void _startSearch() {
+    ModalRoute.of(context)!
+        .addLocalHistoryEntry(LocalHistoryEntry(onRemove: _stopSearching));
+    setState(() {
+      _isSearching = true;
+    });
+  }
+
+  void _stopSearching() {
+    _clearSearch();
+    setState(() {
+      _isSearching = false;
+    });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _searchTextController.clear();
+    });
+  }
 
   @override
   void initState() {
@@ -95,12 +141,23 @@ class _CharactersScreenState extends State<CharactersScreen> {
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
         padding: EdgeInsets.zero,
-        itemCount: allCharacters.length,
+        itemCount: _searchTextController.text.isEmpty
+            ? allCharacters.length
+            : searchedForCharacters.length,
         itemBuilder: (context, index) {
           return CharacterItem(
-            character: allCharacters[index],
+            character: _searchTextController.text.isEmpty
+                ? allCharacters[index]
+                : searchedForCharacters[index],
           );
         });
+  }
+
+  Widget _buildAppBarTile() {
+    return const Text(
+      'Characters',
+      style: TextStyle(color: MyColors.grey),
+    );
   }
 
   @override
@@ -108,10 +165,15 @@ class _CharactersScreenState extends State<CharactersScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: MyColors.Yellow,
-        title: const Text(
-          'Characters',
-          style: TextStyle(color: MyColors.grey),
-        ),
+        leading: _isSearching
+            ? BackButton(
+                color: MyColors.grey,
+              )
+            : Container(
+                width: 1,
+              ),
+        title: _isSearching ? _buildSearchField() : _buildAppBarTile(),
+        actions: _buildAppBarActions(),
       ),
       body: buildBlocWidget(),
     );
