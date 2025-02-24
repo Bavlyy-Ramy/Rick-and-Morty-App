@@ -10,3 +10,10 @@ final class CharactersLoaded extends CharactersState {
 
   CharactersLoaded(this.characters);
 }
+
+final class QuotesLoaded extends CharactersState {
+  final List<Quote> quotes;
+
+  QuotesLoaded(this.quotes);
+}
+
